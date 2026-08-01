@@ -4,10 +4,12 @@ dns.setDefaultResultOrder('ipv4first'); // fixes ENETUNREACH on hosts (like Rend
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
+dotenv.config(); // must run before requiring anything that reads process.env at load time (like routes/api.js)
+
 const connectDB = require('./config/db');
 const apiRoutes = require('./routes/api');
 
-dotenv.config();
 connectDB();
 
 const app = express();

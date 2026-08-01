@@ -78,7 +78,8 @@ router.post('/register', async (req, res) => {
       throw dbErr;
     }
 
-    emailService.sendWelcomeEmail(newUser).catch(err => console.error('Email dispatch error:', err));
+    // No email sent here anymore — confirmation email now fires only
+    // after payment is verified, in the /verify-payment route below.
 
     res.json({
       success: true,
@@ -151,8 +152,8 @@ router.post('/verify-payment', async (req, res) => {
     user.razorpayPaymentId = razorpay_payment_id;
     await user.save();
 
-    emailService.sendPaymentConfirmationEmail(user).catch(err =>
-      console.error('Payment confirmation email error:', err)
+    emailService.sendWelcomeEmail(user).catch(err =>
+      console.error('Confirmation email error:', err)
     );
 
     res.json({ success: true, message: 'Payment verified successfully' });
