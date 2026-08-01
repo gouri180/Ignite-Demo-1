@@ -15,13 +15,25 @@ const createTransporter = () => {
       host,
       port: Number(port),
       secure: Number(port) === 465,
-      auth: { user, pass }
+      auth: { user, pass },
+      family: 4, // force IPv4 - some hosts (like Render) can't route to Gmail's IPv6 address
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 20000
     });
   }
 
+  // Explicit Gmail SMTP settings tend to be more reliable on cloud hosts
+  // than nodemailer's 'service: gmail' shorthand.
   return nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user, pass }
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: { user, pass },
+    family: 4, // force IPv4 - some hosts (like Render) can't route to Gmail's IPv6 address
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 20000
   });
 };
 
@@ -296,7 +308,112 @@ const sendWelcomeEmail = async (user) => {
   }
 };
 
+const buildPaymentConfirmedTemplate = (user) => {
+  const leaderName = user.name || user.leaderName || 'Innovator';
+  const regId = user.id ? `IGN20-${user.id.slice(-6)}` : `IGN20-${Date.now().toString().slice(-6)}`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmed - IGNITE 2.0</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #030706; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #030706; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 620px; background-color: #080f09; border-radius: 20px; overflow: hidden; border: 1px solid rgba(132, 227, 37, 0.15); box-shadow: 0 0 40px rgba(132, 227, 37, 0.1);">
+          <tr>
+            <td style="height: 6px; background-color: #84E325;"></td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 40px 30px 20px 30px;">
+              <div style="display: inline-block; padding: 6px 16px; border-radius: 50px; background: rgba(132, 227, 37, 0.12); border: 1px solid rgba(132, 227, 37, 0.3); color: #84E325; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
+                Payment Confirmed
+              </div>
+              <h1 style="margin: 6px 0 0 0; color: #ffffff; font-size: 30px; font-weight: 900;">
+                IGNITE <span style="color: #84E325;">2.0</span>
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 40px 25px 40px; text-align: center;">
+              <h2 style="margin: 0 0 10px 0; color: #f8fafc; font-size: 22px; font-weight: 700;">
+                You're all set, ${leaderName}!
+              </h2>
+              <p style="margin: 0; color: #94a3b8; font-size: 15px; line-height: 1.6;">
+                We've received your registration fee for <strong style="color: #ffffff;">IGNITE 2.0</strong>. Your spot is fully confirmed.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0d180f; border-radius: 16px; border: 1px solid rgba(132, 227, 37, 0.1); padding: 24px;">
+                <tr>
+                  <td>
+                    <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">REGISTRATION PASS ID</span>
+                    <div style="color: #84E325; font-size: 20px; font-weight: 800; font-family: monospace; margin-top: 2px;">${regId}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 18px;">
+                    <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Payment ID</div>
+                    <div style="color: #f1f5f9; font-size: 13px; font-weight: 500; margin-top: 2px; word-break: break-all;">${user.razorpayPaymentId || 'N/A'}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="background-color: #060c07; padding: 25px 30px; border-top: 1px solid rgba(255,255,255,0.05);">
+              <p style="margin: 0 0 5px 0; color: #cbd5e1; font-size: 13px; font-weight: bold;">
+                I Hub Research & Robotics Pvt Ltd
+              </p>
+              <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                Questions? Email: <a href="mailto:teamihsl31@gmail.com" style="color: #84E325; text-decoration: none;">teamihsl31@gmail.com</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+};
+
+const sendPaymentConfirmationEmail = async (user) => {
+  const htmlContent = buildPaymentConfirmedTemplate(user);
+  const transporter = createTransporter();
+
+  if (!transporter) {
+    console.log(`[EMAIL SERVICE DEV MODE] Payment confirmation for ${user.email}: SMTP not configured, template rendered only.`);
+    return { devMode: true };
+  }
+
+  const mailOptions = {
+    from: `"IGNITE 2.0 Team" <${process.env.EMAIL_USER}>`,
+    to: user.email,
+    subject: 'Payment Confirmed - IGNITE 2.0 Registration Complete!',
+    html: htmlContent
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[EMAIL SERVICE] Payment confirmation sent to ' + user.email + ': ' + info.response);
+    return info;
+  } catch (error) {
+    console.error('[EMAIL SERVICE] Error sending payment confirmation to ' + user.email + ':', error);
+    return { error: error.message };
+  }
+};
+
 module.exports = {
   sendWelcomeEmail,
-  buildEmailTemplate
+  buildEmailTemplate,
+  sendPaymentConfirmationEmail,
+  buildPaymentConfirmedTemplate
 };
