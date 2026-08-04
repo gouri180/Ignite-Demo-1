@@ -97,13 +97,7 @@ const buildEmailTemplate = (user) => {
           <tr>
             <td align="center" style="padding: 40px 30px 20px 30px;">
               <table border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td align="center">
-                    <div style="display: inline-block; padding: 6px 16px; border-radius: 50px; background: rgba(132, 227, 37, 0.12); border: 1px solid rgba(132, 227, 37, 0.3); color: #84E325; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
-                      Official Pass Confirmed
-                    </div>
-                  </td>
-                </tr>
+
                 <tr>
                   <td align="center">
                     <h1 style="margin: 0; color: #ffffff; font-size: 34px; font-weight: 900; letter-spacing: -0.5px;">
@@ -225,7 +219,7 @@ const buildEmailTemplate = (user) => {
                 <tr>
                   <td style="padding: 8px 0; color: #94a3b8; font-size: 13px; line-height: 1.5;">
                     <strong style="color: #84E325;">2. Build & Submit:</strong> Start working on your solution. Submit your idea using the link below:<br><br>
-                    <a href="https://forms.gle/dummy-google-form-link" style="display: inline-block; padding: 10px 20px; background-color: #84E325; color: #000000; text-decoration: none; border-radius: 8px; font-weight: bold;">Submit Idea Form</a>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfp6q_cLtD1Q6kIQSYP7CaaCU4ZLVhLr54PU59V9rS-aYsA5g/viewform?usp=publish-editor" style="display: inline-block; padding: 10px 20px; background-color: #84E325; color: #000000; text-decoration: none; border-radius: 8px; font-weight: bold;">Submit Idea Form</a>
                   </td>
                 </tr>
                 <tr>
