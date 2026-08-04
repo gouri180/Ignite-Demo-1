@@ -3,17 +3,26 @@ const mongoose = require('mongoose');
 const registrationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  phone: { type: String, unique: true, sparse: true, trim: true }, // sparse allows multiple docs with no phone
+  phone: { 
+    type: String, 
+    unique: true, 
+    sparse: true, 
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{10}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  }, // sparse allows multiple docs with no phone
   college: String,
   teamName: String,
   members: String,
   teamMembers: String, // stored as JSON string, same as before
   category: String,
   institutionName: String,
-  domain: String,
-  problemStatement: String,
-  abstract: String,
-  paymentStatus: { type: String, default: 'Pending' },
+  teamId: { type: String, unique: true },
+  paymentStatus: { type: String, default: 'payment_pending' },
   razorpayOrderId: String,
   razorpayPaymentId: String,
   registeredAt: { type: Date, default: Date.now }

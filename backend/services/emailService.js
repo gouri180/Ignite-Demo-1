@@ -39,7 +39,7 @@ const createTransporter = () => {
 
 const buildEmailTemplate = (user) => {
   const leaderName = user.name || user.leaderName || 'Innovator';
-  const regId = user.id ? `IGN20-${user.id.slice(-6)}` : `IGN20-${Date.now().toString().slice(-6)}`;
+  const regId = user.teamId || (user.id ? `IGN20-${user.id.slice(-6)}` : `IGN20-${Date.now().toString().slice(-6)}`);
   const dateStr = user.registeredAt ? new Date(user.registeredAt).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -68,6 +68,15 @@ const buildEmailTemplate = (user) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to IGNITE 2.0</title>
+  <style>
+    @media only screen and (max-width: 600px) {
+      .responsive-td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+    }
+  </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #030706; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
   
@@ -162,33 +171,33 @@ const buildEmailTemplate = (user) => {
                   <td style="padding-top: 18px;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                       <tr>
-                        <td width="50%" style="padding-bottom: 14px; vertical-align: top;">
+                        <td width="50%" class="responsive-td" style="padding-bottom: 14px; vertical-align: top;">
                           <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Team Leader</div>
                           <div style="color: #f1f5f9; font-size: 14px; font-weight: 600; margin-top: 2px;">${leaderName}</div>
                         </td>
-                        <td width="50%" style="padding-bottom: 14px; vertical-align: top;">
+                        <td width="50%" class="responsive-td" style="padding-bottom: 14px; vertical-align: top;">
                           <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Team Name</div>
                           <div style="color: #f1f5f9; font-size: 14px; font-weight: 600; margin-top: 2px;">${user.teamName || 'Solo'}</div>
                         </td>
                       </tr>
 
                       <tr>
-                        <td width="50%" style="padding-bottom: 14px; vertical-align: top;">
+                        <td width="50%" class="responsive-td" style="padding-bottom: 14px; vertical-align: top;">
                           <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Email Address</div>
                           <div style="color: #84E325; font-size: 13px; font-weight: 500; margin-top: 2px; word-break: break-all;">${user.email}</div>
                         </td>
-                        <td width="50%" style="padding-bottom: 14px; vertical-align: top;">
+                        <td width="50%" class="responsive-td" style="padding-bottom: 14px; vertical-align: top;">
                           <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Contact Phone</div>
                           <div style="color: #f1f5f9; font-size: 14px; font-weight: 600; margin-top: 2px;">${user.phone || 'N/A'}</div>
                         </td>
                       </tr>
 
                       <tr>
-                        <td width="50%" style="padding-bottom: 14px; vertical-align: top;">
+                        <td width="50%" class="responsive-td" style="padding-bottom: 14px; vertical-align: top;">
                           <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Institution</div>
                           <div style="color: #f1f5f9; font-size: 14px; font-weight: 600; margin-top: 2px;">${user.institutionName || user.college || 'N/A'}</div>
                         </td>
-                        <td width="50%" style="padding-bottom: 14px; vertical-align: top;">
+                        <td width="50%" class="responsive-td" style="padding-bottom: 14px; vertical-align: top;">
                           <div style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Registered Date</div>
                           <div style="color: #f1f5f9; font-size: 14px; font-weight: 600; margin-top: 2px;">${dateStr}</div>
                         </td>
@@ -210,12 +219,13 @@ const buildEmailTemplate = (user) => {
               <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); padding: 16px;">
                 <tr>
                   <td style="padding: 8px 0; color: #94a3b8; font-size: 13px; line-height: 1.5;">
-                    <strong style="color: #84E325;">1. Join Community Channel:</strong> Click here to join our official <a href="https://chat.whatsapp.com/YOUR_WHATSAPP_LINK_HERE" style="color: #84E325; text-decoration: underline;">WhatsApp Group</a> for announcements.
+                    <strong style="color: #84E325;">1. Join Community Channels:</strong> You must join our official <a href="https://chat.whatsapp.com/DeGExsR69SzEuvQ9HJYSez?s=sw&p=i&mlu=4" style="color: #84E325; text-decoration: underline;">WhatsApp Group</a> and <a href="https://chat.whatsapp.com/E8eU0K7VayHG47RjwZvWbG" style="color: #84E325; text-decoration: underline;">Community</a> for updates.
                   </td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #94a3b8; font-size: 13px; line-height: 1.5;">
-                    <strong style="color: #84E325;">2. Build & Submit:</strong> Start working on your solution. Final submission details will be announced soon.
+                    <strong style="color: #84E325;">2. Build & Submit:</strong> Start working on your solution. Submit your idea using the link below:<br><br>
+                    <a href="https://forms.gle/dummy-google-form-link" style="display: inline-block; padding: 10px 20px; background-color: #84E325; color: #000000; text-decoration: none; border-radius: 8px; font-weight: bold;">Submit Idea Form</a>
                   </td>
                 </tr>
                 <tr>
@@ -227,10 +237,10 @@ const buildEmailTemplate = (user) => {
             </td>
           </tr>
 
-          <!-- Connect with Us -->
+          <!-- Follow for More Updates -->
           <tr>
             <td align="left" style="padding: 0 40px 30px 40px;">
-              <h3 style="margin: 0 0 10px 0; color: #84E325; font-size: 16px; font-weight: 600;">Connect with Us</h3>
+              <h3 style="margin: 0 0 10px 0; color: #84E325; font-size: 16px; font-weight: 600;">Follow for More Updates</h3>
               <ul style="margin: 0; color: #94a3b8; font-size: 14px; padding-left: 20px; line-height: 1.8;">
                 <li><strong>Ignite 2.0 WhatsApp Group:</strong> <a href="https://chat.whatsapp.com/DeGExsR69SzEuvQ9HJYSez?s=sw&p=i&mlu=4" style="color: #84E325; text-decoration: none;">Join Here</a></li>
                 <li><strong>iHub WhatsApp Community:</strong> <a href="https://chat.whatsapp.com/E8eU0K7VayHG47RjwZvWbG" style="color: #84E325; text-decoration: none;">Join Here</a></li>
@@ -276,19 +286,6 @@ const sendWelcomeEmail = async (user) => {
   }
 
   let toEmails = [user.email];
-  if (user.teamMembers) {
-    try {
-      const members = JSON.parse(user.teamMembers);
-      if (Array.isArray(members)) {
-        members.forEach(m => {
-          if (m.email && m.email.trim() !== '') {
-            toEmails.push(m.email.trim());
-          }
-        });
-      }
-    } catch(e) {}
-  }
-  toEmails = [...new Set(toEmails)];
 
   const mailOptions = {
     from: `"IGNITE 2.0 Team" <${process.env.EMAIL_USER}>`,
@@ -310,7 +307,7 @@ const sendWelcomeEmail = async (user) => {
 
 const buildPaymentConfirmedTemplate = (user) => {
   const leaderName = user.name || user.leaderName || 'Innovator';
-  const regId = user.id ? `IGN20-${user.id.slice(-6)}` : `IGN20-${Date.now().toString().slice(-6)}`;
+  const regId = user.teamId || (user.id ? `IGN20-${user.id.slice(-6)}` : `IGN20-${Date.now().toString().slice(-6)}`);
 
   return `
 <!DOCTYPE html>
@@ -319,6 +316,15 @@ const buildPaymentConfirmedTemplate = (user) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payment Confirmed - IGNITE 2.0</title>
+  <style>
+    @media only screen and (max-width: 600px) {
+      .responsive-td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+    }
+  </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #030706; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #030706; padding: 40px 10px;">

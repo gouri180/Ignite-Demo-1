@@ -15,7 +15,7 @@ router.post('/register', async (req, res) => {
   try {
     const {
       name, leaderName, email, phone, college, teamName, members,
-      teamMembers, category, institutionName, domain, problemStatement, abstract
+      teamMembers, category, institutionName
     } = req.body;
     const fullName = name || leaderName;
     const cleanEmail = email ? email.trim().toLowerCase() : '';
@@ -35,6 +35,12 @@ router.post('/register', async (req, res) => {
     }
 
     if (cleanPhone) {
+      if (!/^\d{10}$/.test(cleanPhone)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Phone number must be exactly 10 digits.'
+        });
+      }
       const existingPhoneUser = await Registration.findByPhone(cleanPhone);
       if (existingPhoneUser) {
         return res.status(400).json({
@@ -44,6 +50,7 @@ router.post('/register', async (req, res) => {
       }
     }
 
+    const teamId = `IGN20-${Date.now().toString().slice(-6)}`;
     let newUser;
     try {
       newUser = await Registration.create({
@@ -56,10 +63,8 @@ router.post('/register', async (req, res) => {
         teamMembers: teamMembersJson,
         category,
         institutionName,
-        domain,
-        problemStatement,
-        abstract,
-        paymentStatus: 'Pending'
+        teamId,
+        paymentStatus: 'payment_pending'
       });
     } catch (dbErr) {
       console.error('Database constraint error:', dbErr);
@@ -95,9 +100,10 @@ router.post('/register', async (req, res) => {
 // Create a Razorpay order for a given registration
 router.post('/create-order', async (req, res) => {
   try {
-    const { email, amount } = req.body; // amount in rupees, e.g. 499
-    if (!email || !amount) {
-      return res.status(400).json({ success: false, message: 'Email and amount required' });
+    const { email } = req.body;
+    const amount = 499; // fixed price for registration
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email required' });
     }
 
     const user = await Registration.findByEmail(email);
@@ -105,7 +111,7 @@ router.post('/create-order', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Registration not found. Please register first.' });
     }
 
-    if (user.paymentStatus === 'Paid') {
+    if (user.paymentStatus === 'payment_successful') {
       return res.status(400).json({ success: false, message: 'This registration is already marked as paid.' });
     }
 
@@ -147,7 +153,7 @@ router.post('/verify-payment', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Registration not found' });
     }
 
-    user.paymentStatus = 'Paid';
+    user.paymentStatus = 'payment_successful';
     user.razorpayOrderId = razorpay_order_id;
     user.razorpayPaymentId = razorpay_payment_id;
     await user.save();
@@ -199,7 +205,7 @@ router.post('/admin/mark-paid', async (req, res) => {
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email required' });
     }
-    const updated = await Registration.updatePaymentStatus(email, 'Paid');
+    const updated = await Registration.updatePaymentStatus(email, 'payment_successful');
     if (updated) {
       res.json({ success: true, message: 'Marked as paid' });
     } else {
